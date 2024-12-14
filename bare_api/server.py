@@ -13,6 +13,16 @@ class SimpleAPIHandler(BaseHTTPRequestHandler):
             response = {"message": "Hello, from barebones API :)"}
 
             self.wfile.write(json.dumps(response).encode())
+
+        elif self.path == "/about":
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+
+            response = {"message": "To store data on the server, hit the /save POST endpoint"}
+
+            self.wfile.write(json.dumps(response).encode())
+
         else:
             self.send_error(404, "Endpoint not found")
 
@@ -26,7 +36,7 @@ class SimpleAPIHandler(BaseHTTPRequestHandler):
 
                 if "value" not in data:
                     raise ValueError("Missing 'value' in request body")
-        
+
                 response = {"received_value": data["value"]}
 
                 self.send_response(200)
