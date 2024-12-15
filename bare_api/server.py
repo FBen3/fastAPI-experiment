@@ -4,28 +4,30 @@ import json
 
 
 class SimpleAPIHandler(BaseHTTPRequestHandler):
+    """
+    An HTTP request handler with simple endpoints for testing
+    basic API functionality (e.g. GET, POST)
+    """
 
     storage = {"stored_data": []}
 
+    def send_json_response(self, status_code, content):
+        self.send_response(status_code)
+        self.send_header("Content-Type", "application/json")
+        self.end_headers()
+
+        self.wfile.write((json.dumps(content) + "\n").encode())
 
     def do_GET(self):
+
         if self.path == "/":
-            self.send_response(200)
-            self.send_header("Content-Type", "application/json")
-            self.end_headers()
-
             response = {"message": "Hello, from barebones API :)"}
-
-            self.wfile.write((json.dumps(response) + "\n").encode())
+            self.send_json_response(status_code=200, content=response)
 
         elif self.path == "/about":
-            self.send_response(200)
-            self.send_header("Content-Type", "application/json")
-            self.end_headers()
-
             if self.storage["stored_data"]:
                 response = {
-                    "message": "Stored data retreived successfully",
+                    "message": "Stored data retrieved successfully",
                     "data": self.storage["stored_data"]
                 }
             else:
@@ -33,40 +35,26 @@ class SimpleAPIHandler(BaseHTTPRequestHandler):
                     "message": "To store data on the server, hit the /save POST endpoint",
                     "data": []
                 }
-
-            self.wfile.write((json.dumps(response) + "\n").encode())
+            self.send_json_response(status_code=200, content=response)
 
         else:
             self.send_error(404, "Endpoint not found")
 
     def do_POST(self):
-        if self.path == "/process":
-            content_length = int(self.headers["Content-Length"])
-            post_data = self.rfile.read(content_length)
+        content_length = int(self.headers["Content-Length"])
+        post_data = self.rfile.read(content_length)
 
-            try:
-                data = json.loads(post_data)
+        try:
+            data = json.loads(post_data)
 
+            if self.path == "/process":
                 if "value" not in data:
                     raise ValueError("Missing 'value' in request body")
 
                 response = {"received_value": data["value"]}
+                self.send_json_response(status_code=200, content=response)
 
-                self.send_response(200)
-                self.send_header("Content-Type", "application/json")
-                self.end_headers()
-
-                self.wfile.write((json.dumps(response) + "\n").encode())
-            except (json.JSONDecodeError, ValueError) as e:
-                self.send_error(400, str(e))
-
-        elif self.path == "/save":
-            content_length = int(self.headers["Content-Length"])
-            post_data = self.rfile.read(content_length)
-
-            try:
-                data = json.loads(post_data)
-
+            elif self.path == "/save":
                 if "value" not in data:
                     raise ValueError("Missing 'value' in request body")
 
@@ -75,18 +63,16 @@ class SimpleAPIHandler(BaseHTTPRequestHandler):
                 self.storage["stored_data"].append({formatted_time: data["value"]})
 
                 response = {"message": f"{data["value"]} saved successfully!"}
+                self.send_json_response(status_code=200, content=response)
 
-                self.send_response(200)
-                self.send_header("Content-Type", "application/json")
-                self.end_headers()
+            else:
+                self.send_error(404, "Endpoint not found")
 
-                self.wfile.write((json.dumps(response) + "\n").encode())
-            except (ValueError) as e:
-                self.send_error(400, str(e))
+        except json.JSONDecodeError:
+            self.send_json_response(status_code=400, content={"error": "Invalid JSON in request body"})
 
-        else:
-            self.send_error(404, "Endpoint not found")
-
+        except ValueError as e:
+            self.send_json_response(status_code=400, content={"error": str(e)})
 
 
 def run(server_class=HTTPServer, handler_class=SimpleAPIHandler, port=8000):
@@ -99,4 +85,5 @@ def run(server_class=HTTPServer, handler_class=SimpleAPIHandler, port=8000):
 
 
 if __name__ == "__main__":
-    run()
+    PORT = 8000
+    run(port=PORT)
