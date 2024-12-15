@@ -16,7 +16,7 @@ class SimpleAPIHandler(BaseHTTPRequestHandler):
 
             response = {"message": "Hello, from barebones API :)"}
 
-            self.wfile.write(json.dumps(response).encode())
+            self.wfile.write((json.dumps(response) + "\n").encode())
 
         elif self.path == "/about":
             self.send_response(200)
@@ -34,7 +34,7 @@ class SimpleAPIHandler(BaseHTTPRequestHandler):
                     "data": []
                 }
 
-            self.wfile.write(json.dumps(response).encode())
+            self.wfile.write((json.dumps(response) + "\n").encode())
 
         else:
             self.send_error(404, "Endpoint not found")
@@ -56,7 +56,7 @@ class SimpleAPIHandler(BaseHTTPRequestHandler):
                 self.send_header("Content-Type", "application/json")
                 self.end_headers()
 
-                self.wfile.write(json.dumps(response).encode())
+                self.wfile.write((json.dumps(response) + "\n").encode())
             except (json.JSONDecodeError, ValueError) as e:
                 self.send_error(400, str(e))
 
@@ -71,7 +71,7 @@ class SimpleAPIHandler(BaseHTTPRequestHandler):
                     raise ValueError("Missing 'value' in request body")
 
                 current_time = datetime.now()
-                formatted_time = current_time.strftime('%H:%M')
+                formatted_time = current_time.strftime('%H:%M:%S')
                 self.storage["stored_data"].append({formatted_time: data["value"]})
 
                 response = {"message": f"{data["value"]} saved successfully!"}
@@ -80,7 +80,7 @@ class SimpleAPIHandler(BaseHTTPRequestHandler):
                 self.send_header("Content-Type", "application/json")
                 self.end_headers()
 
-                self.wfile.write(json.dumps(response).encode())
+                self.wfile.write((json.dumps(response) + "\n").encode())
             except (ValueError) as e:
                 self.send_error(400, str(e))
 
