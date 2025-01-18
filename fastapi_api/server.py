@@ -38,6 +38,8 @@ async def about():
 @app.post("/process")
 async def process(data: Data):
     """Process the value from the request body"""
+    if not data.value.strip():
+        raise HTTPException(status_code=400, detail="You must specify a value!")
 
     return {"received_value": data.value}
 
@@ -45,6 +47,8 @@ async def process(data: Data):
 @app.post("/save")
 async def save(data: Data):
     """Save the value with a timestamp"""
+    if not data.value.strip():
+        raise HTTPException(status_code=400, detail="You must specify a value!")
 
     current_time = datetime.now().strftime('%H:%M:%S')
     storage["stored_data"].append({current_time: data.value})
