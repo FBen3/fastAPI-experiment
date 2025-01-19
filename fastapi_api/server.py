@@ -1,3 +1,5 @@
+import asyncio
+import time
 from datetime import datetime
 
 from fastapi import FastAPI, HTTPException
@@ -40,6 +42,17 @@ async def process(data: Data):
     """Process the value from the request body"""
     if not data.value.strip():
         raise HTTPException(status_code=400, detail="You must specify a value!")
+
+    ###
+    start_time = datetime.now().strftime('%H:%M:%S')
+    print(f"Start processing at: {start_time}")
+    
+    await asyncio.sleep(5)  # simulate async delay/workload
+    # time.sleep(5)  # synchronous blocking delay
+
+    end_time = datetime.now().strftime('%H:%M:%S')
+    print(f"End processing at: {end_time}")
+    ###
 
     return {"received_value": data.value}
 
