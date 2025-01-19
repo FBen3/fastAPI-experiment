@@ -1,6 +1,7 @@
-from http.server import BaseHTTPRequestHandler, HTTPServer
-from datetime import datetime
+import time
 import json
+from datetime import datetime
+from http.server import BaseHTTPRequestHandler, HTTPServer
 
 
 class SimpleAPIHandler(BaseHTTPRequestHandler):
@@ -50,6 +51,16 @@ class SimpleAPIHandler(BaseHTTPRequestHandler):
             if self.path == "/process":
                 if "value" not in data:
                     raise ValueError("Missing 'value' in request body")
+                
+                ###
+                start_time = datetime.now().strftime('%H:%M:%S')
+                print(f"Start processing at: {start_time}")
+
+                time.sleep(5)  # simulate blocking delay
+                
+                end_time = datetime.now().strftime('%H:%M:%S')
+                print(f"End processing at: {end_time}")
+                ###
 
                 response = {"received_value": data["value"]}
                 self.send_json_response(status_code=200, content=response)
