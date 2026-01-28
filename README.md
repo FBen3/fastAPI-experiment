@@ -5,5 +5,4 @@
 Playing with the FastAPI framework...
 
 - `main` branch has the FastAPI implementation
-- `bare` branch has a "bare" API implemented without any frameworks (e.g. Flask, Django)
-
+- `bare` branch has a "bare" API implemented without any frameworks
